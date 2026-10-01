@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spannung Leicht Stromkreise rechnen mit <br> URI Heller</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy:     #0D1433;
+    --midnight: #121E47;
+    --steel:    #2E406B;
+    --gold:     #B79440;
+    --gold-lt:  #D4AF60;
+    --ice:      #C0D4F2;
+    --offwhite: #F5F7FC;
+    --white:    #FFFFFF;
+    --gray:     #8A95A8;
+    --green:    #4CAF7D;
+    --red:      #D66A6A;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body:    'Jost', sans-serif;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body { background: var(--navy); color: var(--offwhite); font-family: var(--font-body); font-weight: 300; overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--navy); }
+  ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 4rem;
+    background: rgba(13,20,51,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(183,148,64,0.2);
+    transition: padding 0.3s var(--ease);
+  }
+  nav.scrolled { padding: 0.8rem 4rem; }
+  .nav-logo { display: flex; align-items: center; gap: 0.75rem; }
+  .nav-logo .monogram {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 1rem; color: var(--navy); flex-shrink: 0;
+  }
+  .nav-logo .wordmark { font-family: var(--font-body); font-weight: 600; letter-spacing: 0.18em; font-size: 0.9rem; color: var(--white); }
+  .nav-links { display: flex; align-items: center; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ice); font-weight: 400; position: relative; padding-bottom: 3px;
+    transition: color 0.2s;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: 0; left: 0;
+    width: 0; height: 1px; background: var(--gold);
+    transition: width 0.3s var(--ease);
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-cta {
+    background: transparent; border: 1px solid var(--gold);
+    color: var(--gold) !important; padding: 0.5rem 1.4rem;
+    border-radius: 2px; transition: all 0.25s !important;
+  }
+  .nav-cta:hover { background: var(--gold) !important; color: var(--navy) !important; }
+  .nav-cta::after { display: none !important; }
+  #page-header {
+    min-height: 46vh;
+    display: grid; place-items: center;
+    position: relative; overflow: hidden;
+    padding: 9rem 4rem 4rem;
+    background: radial-gradient(ellipse 80% 60% at 70% 30%, #1a2654 0%, var(--navy) 60%);
+  }
+  .breadcrumb {
+    font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1.2rem; text-align: center;
+  }
+  .breadcrumb a { color: var(--gray); transition: color 0.2s; }
+  .breadcrumb a:hover { color: var(--white); }
+  .page-title {
+    font-family: var(--font-display); font-weight: 300;
+    font-size: clamp(2.4rem, 5vw, 4rem); line-height: 1.1;
+    color: var(--white); text-align: center; margin-bottom: 1rem;
+  }
+  .page-title em { color: var(--gold); font-style: italic; }
+  .page-sub {
+    font-size: 1rem; color: var(--ice); text-align: center;
+    max-width: 560px; margin: 0 auto;
+  }
+  section { padding: 6rem 4rem; }
+  #quiz { background: var(--midnight); }
+  .quiz-wrap { max-width: 1080px; margin: 0 auto; }
+  .quiz-progress {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 2rem; font-size: 0.75rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--gray);
+  }
+  .quiz-progress-bar {
+    flex: 1; height: 3px; background: rgba(183,148,64,0.15);
+    margin: 0 1.2rem; border-radius: 2px; overflow: hidden;
+  }
+  .quiz-progress-fill {
+    height: 100%; background: var(--gold); width: 0%;
+    transition: width 0.4s var(--ease);
+  }
+  .quiz-card {
+    background: var(--navy); border: 1px solid rgba(183,148,64,0.15);
+    border-radius: 6px; padding: 2.5rem;
+  }
+  .quiz-image-wrap {
+    width: 100%; min-height: 200px; border-radius: 4px;
+    background: #000000; margin-bottom: 2rem;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .quiz-image-wrap img { width: 100%; height: auto; object-fit: contain; }
+  .quiz-question {
+    font-family: var(--font-display); font-size: 1.5rem; font-weight: 400;
+    color: var(--white); margin-bottom: 1.8rem; line-height: 1.4;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.9rem; }
+  .quiz-option {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px; padding: 0.9rem 1.2rem;
+    color: var(--offwhite); font-family: var(--font-body); font-size: 0.92rem;
+    text-align: left; cursor: pointer; transition: all 0.2s var(--ease);
+  }
+  .quiz-option:hover { border-color: var(--gold); background: rgba(183,148,64,0.08); }
+  .quiz-option.correct { border-color: var(--green); background: rgba(76,175,125,0.15); color: var(--green); }
+  .quiz-option.wrong { border-color: var(--red); background: rgba(214,106,106,0.15); color: var(--red); }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback {
+    margin-top: 1.5rem; font-size: 0.9rem; color: var(--ice);
+    min-height: 1.4rem;
+  }
+  .quiz-actions { margin-top: 2rem; display: flex; justify-content: flex-end; }
+  .btn-quiz-next {
+    background: var(--gold); color: var(--navy); border: none;
+    padding: 0.75rem 1.8rem; font-family: var(--font-body);
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; cursor: pointer; border-radius: 2px;
+    transition: all 0.25s var(--ease); opacity: 0.4; pointer-events: none;
+  }
+  .btn-quiz-next.active { opacity: 1; pointer-events: auto; }
+  .btn-quiz-next:hover.active { background: var(--gold-lt); transform: translateY(-2px); }
+  .quiz-result {
+    text-align: center; padding: 2rem 0;
+  }
+  .quiz-result-score {
+    font-family: var(--font-display); font-size: 3rem; color: var(--gold); margin-bottom: 0.8rem;
+  }
+  .quiz-result-text { color: var(--ice); margin-bottom: 2rem; }
+  .btn-restart {
+    background: transparent; border: 1px solid var(--gold); color: var(--gold);
+    padding: 0.75rem 1.8rem; font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+    border-radius: 2px; transition: all 0.25s var(--ease);
+  }
+  .btn-restart:hover { background: var(--gold); color: var(--navy); }
+  .hidden { display: none !important; }
+  .quiz-result-actions {
+    display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;
+  }
+  .btn-back {
+    display: inline-block;
+    background: transparent; color: var(--gold);
+    border: 1px solid var(--gold);
+    padding: 0.75rem 1.8rem; border-radius: 2px;
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    transition: all 0.25s var(--ease);
+  }
+  .btn-back:hover { background: var(--gold); color: var(--navy); transform: translateY(-2px); }
+  footer {
+    background: var(--navy);
+    border-top: 1px solid rgba(183,148,64,0.2);
+    padding: 2.5rem 4rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-logo { display: flex; align-items: center; gap: 0.6rem; }
+  .footer-logo .monogram {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--gold); display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 600; font-size: 0.75rem; color: var(--navy);
+  }
+  .footer-logo .wordmark { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.18em; color: var(--white); }
+  .footer-copy { font-size: 0.72rem; color: var(--gray); }
+  .footer-links { display: flex; gap: 1.8rem; }
+  .footer-links a { font-size: 0.72rem; color: var(--gray); transition: color 0.2s; }
+  .footer-links a:hover { color: var(--gold); }
+  @media (max-width: 900px) {
+    nav { padding: 1rem 2rem; }
+    .nav-links { display: none; }
+    section, #page-header { padding: 5rem 2rem; }
+    .quiz-card { padding: 1.6rem; }
+    footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+<nav id="navbar">
+  <a href="Index.html" class="nav-logo">
+    <div class="monogram">URI</div>
+    <span class="wordmark">Stromkreise rechnen mit <br> URI Heller</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="Index.html#Ler">Lernen</a></li>
+    <li><a href="Index.html#Spi">Spielen</a></li>
+    <li><a href="Index.html#Pru">Prüfungsvorbereitung</a></li>
+    <li><a href="Index.html#Hil" class="nav-cta">Hilfe</a></li>
+  </ul>
+</nav>
+<section id="page-header">
+  <div>
+    <p class="breadcrumb"><a href="Index.html"></a><a href="Index.html#Spi">Spielen</a></p>
+    <h1 class="page-title">Spannung <em>Leicht</em></h1>
+    <p class="page-sub">10 Aufgaben</p>
+  </div>
+</section>
+<section id="quiz">
+  <div class="quiz-wrap">
+    <div class="quiz-progress">
+      <span id="quiz-step-label">Frage 1 von 10</span>
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
+      <span id="quiz-score-label">0 richtig</span>
+    </div>
+    <div class="quiz-card" id="quiz-card">
+      <div class="quiz-image-wrap">
+        <img id="quiz-image" src="" alt="Quizbild">
+      </div>
+      <p class="quiz-question" id="quiz-question"></p>
+      <div class="quiz-options" id="quiz-options"></div>
+      <p class="quiz-feedback" id="quiz-feedback"></p>
+      <div class="quiz-actions">
+        <button class="btn-quiz-next" id="quiz-next">Weiter</button>
+      </div>
+    </div>
+    <div class="quiz-card quiz-result hidden" id="quiz-result">
+      <div class="quiz-result-score" id="quiz-result-score">0 / 0</div>
+      <p class="quiz-result-text">Richtige Antworten</p>
+      <div class="quiz-result-actions">
+        <a href="javascript:void(0)" id="quiz-restart" class="btn-restart">Nochmals</a>
+        <a href="Index.html#Spi" class="btn-back">Zum Spielmenü zurück</a>
+      </div>
+      <img class="png-transparent" src="./pic/u13n.png" alt="Beschreibung" style="width: 200px;margin-left: 250px; padding-top: 50px;">
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="footer-logo">
+    <div class="monogram">URI</div>
+    <span class="wordmark">Stromkreise rechnen mit URI Heller</span>
+  </div>
+  <p class="footer-copy">© 2026 Chronwald · xxxx</p>
+  <div class="footer-links">
+    <a href="#">Impressum</a>
+    <a href="#">Datenschutz</a>
+    <a href="#">AGB</a>
+  </div>
+</footer>
+<script>
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
+  });
+  function schwarzenHintergrundEntfernen(imgEl, schwellenwert = 40) {
+    return new Promise((resolve) => {
+      const verarbeiten = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = imgEl.naturalWidth;
+          canvas.height = imgEl.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(imgEl, 0, 0);
+
+          const bilddaten = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const pixel = bilddaten.data;
+
+          // Alle 4 Werte pro Pixel: Rot, Grün, Blau, Alpha (Transparenz)
+          for (let i = 0; i < pixel.length; i += 4) {
+            const r = pixel[i];
+            const g = pixel[i + 1];
+            const b = pixel[i + 2];
+            if (r <= schwellenwert && g <= schwellenwert && b <= schwellenwert) {
+              pixel[i + 3] = 0; // Alpha auf 0 -> komplett durchsichtig
+            }
+          }
+
+          ctx.putImageData(bilddaten, 0, 0);
+          imgEl.src = canvas.toDataURL('image/png');
+        } catch (fehler) {
+          console.warn('Hintergrund konnte nicht entfernt werden:', fehler);
+        }
+        resolve();
+      };
+      if (imgEl.complete && imgEl.naturalWidth > 0) {
+        verarbeiten();
+      } else {
+        imgEl.addEventListener('load', verarbeiten, { once: true });
+      }
+    });
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('img.png-transparent').forEach(img => {
+      schwarzenHintergrundEntfernen(img);
+    });
+  });
+  const quizData = [
+    {
+      image: "./pic/spl1.png",
+      question: "Berechne die Spannung dieser Paralellschaltung.",
+      options: ["8 Volt", "4 Volt", "6 Volt", "12 Volt"],
+      correct: 2
+    },
+    {
+      image: "./pic/spl2.png",
+      question: "Berechne die Spannung dieser Paralellschaltung.",
+      options: ["10 Volt", " 12 Volt", "15 Volt", " 5 Volt"],
+      correct: 0
+    },
+    {
+      image: "./pic/spl3.png",
+      question: "Berechne die Spannung dieser Paralellschaltung.",
+      options: ["12 Volt", "4 Volt", "8 Volt", "6 Volt"],
+      correct: 1
+    },
+    {
+      image: "./pic/spl4.png",
+      question: "Berechne die Spannung dieser Paralellschaltung.",
+      options: ["3 Volt", "9 Volt", "12 Volt", "6 Volt"],
+      correct: 3
+    },
+    {
+      image: "./pic/spl5.png",
+      question: "Berechne die Spannung dieser Paralellschaltung.",
+      options: [" 2 Volt", "8 Volt", "6 Volt", "4 Volt"],
+      correct: 2
+    },
+    {
+      image: "./pic/spl6.png",
+      question: "Berechne die Spannung dieser Paralellschaltung.",
+      options: ["3 Volt", "6 Volt", "9 Volt", "12 Volt"],
+      correct: 0
+    },
+    {
+      image: "./pic/spl7.png",
+      question: "Berechne die Spannung dieser Paralellschaltung.",
+      options: ["12 Volt", "16 Volt", "6 Volt", "14 Volt"],
+      correct: 3
+    },
+    {
+      image: "./pic/spl8.png",
+      question: "Berechne die Spannung dieser Paralellschaltung.",
+      options: ["12 Volt", "16 Volt", "8 Volt", "9 Volt"],
+      correct: 1
+    },
+    {
+      image: "./pic/spl9.png",
+      question: "Berechne die Spannung dieser Paralellschaltung.",
+      options: ["12 Volt", "9 Volt", "15 Volt", "18 Volt"],
+      correct: 0
+    },
+    {
+      image: "./pic/spl10.png",
+      question: "PBerechne die Spannung dieser Paralellschaltung.",
+      options: ["7 Volt", " 11 Volt", "12 Volt", "16 Volt"],
+      correct: 2
+    }
+  ];
+  let currentQuestion = 0;
+  let score = 0;
+  let answered = false;
+  const imageEl = document.getElementById('quiz-image');
+  const questionEl = document.getElementById('quiz-question');
+  const optionsEl = document.getElementById('quiz-options');
+  const feedbackEl = document.getElementById('quiz-feedback');
+  const nextBtn = document.getElementById('quiz-next');
+  const stepLabel = document.getElementById('quiz-step-label');
+  const scoreLabel = document.getElementById('quiz-score-label');
+  const progressFill = document.getElementById('quiz-progress-fill');
+  const quizCard = document.getElementById('quiz-card');
+  const quizResult = document.getElementById('quiz-result');
+  const resultScore = document.getElementById('quiz-result-score');
+  const restartBtn = document.getElementById('quiz-restart');
+  function loadQuestion() {
+    answered = false;
+    const q = quizData[currentQuestion];
+    imageEl.src = q.image;
+    imageEl.alt = q.question;
+    schwarzenHintergrundEntfernen(imageEl);
+    questionEl.textContent = q.question;
+    feedbackEl.textContent = '';
+    nextBtn.classList.remove('active');
+    nextBtn.textContent = currentQuestion === quizData.length - 1 ? 'Ergebnis anzeigen' : 'Weiter';
+    optionsEl.innerHTML = '';
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-option';
+      btn.textContent = opt;
+      btn.addEventListener('click', () => selectAnswer(i));
+      optionsEl.appendChild(btn);
+    });
+    stepLabel.textContent = `Frage ${currentQuestion + 1} von ${quizData.length}`;
+    scoreLabel.textContent = `${score} richtig`;
+    progressFill.style.width = `${(currentQuestion / quizData.length) * 100}%`;
+  }
+  function selectAnswer(index) {
+    if (answered) return;
+    answered = true;
+    const q = quizData[currentQuestion];
+    const buttons = optionsEl.querySelectorAll('.quiz-option');
+    buttons.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === q.correct) btn.classList.add('correct');
+      else if (i === index) btn.classList.add('wrong');
+    });
+    if (index === q.correct) {
+      score++;
+      feedbackEl.textContent = 'Richtig!';
+    } else {
+      feedbackEl.textContent = 'Leider falsch.';
+    }
+    scoreLabel.textContent = `${score} richtig`;
+    nextBtn.classList.add('active');
+  }
+  nextBtn.addEventListener('click', () => {
+    if (!answered) return;
+    currentQuestion++;
+    if (currentQuestion < quizData.length) {
+      loadQuestion();
+    } else {
+      showResult();
+    }
+  });
+  function showResult() {
+    quizCard.classList.add('hidden');
+    quizResult.classList.remove('hidden');
+    resultScore.textContent = `${score} / ${quizData.length}`;
+    progressFill.style.width = '100%';
+  }
+  restartBtn.addEventListener('click', () => {
+    currentQuestion = 0;
+    score = 0;
+    quizResult.classList.add('hidden');
+    quizCard.classList.remove('hidden');
+    loadQuestion();
+  });
+  loadQuestion();
+</script>
+</body>
+</html>

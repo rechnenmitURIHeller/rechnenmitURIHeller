@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stromkreise rechnen mit URI Heller.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy:     #0D1433;
+    --midnight: #121E47;
+    --steel:    #2E406B;
+    --gold:     #B79440;
+    --gold-lt:  #D4AF60;
+    --ice:      #C0D4F2;
+    --offwhite: #F5F7FC;
+    --white:    #FFFFFF;
+    --gray:     #8A95A8;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body:    'Jost', sans-serif;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body { background: var(--navy); color: var(--offwhite); font-family: var(--font-body); font-weight: 300; overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--navy); }
+  ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 4rem;
+    background: rgba(13,20,51,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(183,148,64,0.2);
+    transition: padding 0.3s var(--ease);
+  }
+  nav.scrolled { padding: 0.8rem 4rem; }
+
+  .nav-logo {
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .nav-logo .monogram {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 1rem; color: var(--navy);
+    flex-shrink: 0;
+  }
+  .nav-logo .wordmark {
+    font-family: var(--font-body); font-weight: 600;
+    letter-spacing: 0.18em; font-size: 0.9rem;
+    color: var(--white);
+  }
+  .nav-links {
+    display: flex; align-items: center; gap: 2.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ice); font-weight: 400;
+    position: relative; padding-bottom: 3px;
+    transition: color 0.2s;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: 0; left: 0;
+    width: 0; height: 1px; background: var(--gold);
+    transition: width 0.3s var(--ease);
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-cta {
+    background: transparent; border: 1px solid var(--gold);
+    color: var(--gold) !important; padding: 0.5rem 1.4rem;
+    border-radius: 2px; transition: all 0.25s !important;
+  }
+  .nav-cta:hover { background: var(--gold) !important; color: var(--navy) !important; }
+  .nav-cta::after { display: none !important; }
+  #hero {
+    min-height: 100vh;
+    display: grid; place-items: center;
+    position: relative; overflow: hidden;
+    padding: 8rem 4rem 6rem;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 70% 30%, #1a2654 0%, var(--navy) 60%);
+  }
+  .hero-orb {
+    position: absolute; border-radius: 50%;
+    animation: float 8s ease-in-out infinite;
+  }
+  .orb-1 {
+    width: 600px; height: 600px;
+    top: -200px; right: -150px;
+    background: radial-gradient(circle, rgba(46,64,107,0.8) 0%, transparent 70%);
+    animation-delay: 0s;
+  }
+  .orb-2 {
+    width: 300px; height: 300px;
+    bottom: -100px; left: 10%;
+    background: radial-gradient(circle, rgba(183,148,64,0.12) 0%, transparent 70%);
+    animation-delay: -3s;
+  }
+  .orb-3 {
+    width: 180px; height: 180px;
+    top: 30%; right: 18%;
+    border: 1px solid rgba(183,148,64,0.3);
+    background: transparent;
+    animation-delay: -5s;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-20px) scale(1.02); }
+  }
+  .hero-content {
+    position: relative; z-index: 1;
+    max-width: 900px; text-align: center;
+  }
+  .hero-eyebrow {
+    font-size: 0.72rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--gold); font-weight: 500; margin-bottom: 1.5rem;
+    animation: fadeUp 0.8s var(--ease) both;
+  }
+  .hero-title {
+    font-family: var(--font-display); font-weight: 300;
+    font-size: clamp(3rem, 7vw, 6rem); line-height: 1.05;
+    color: var(--white); margin-bottom: 1.5rem;
+    animation: fadeUp 0.8s 0.15s var(--ease) both;
+  }
+  .hero-title em { color: var(--gold); font-style: italic; }
+  .hero-sub {
+    font-size: 1.05rem; color: var(--ice); font-weight: 300;
+    line-height: 1.7; max-width: 580px; margin: 0 auto 2.8rem;
+    animation: fadeUp 0.8s 0.3s var(--ease) both;
+  }
+  .hero-actions {
+    display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+    animation: fadeUp 0.8s 0.45s var(--ease) both;
+  }
+  .btn-primary {
+    background: var(--gold); color: var(--navy);
+    padding: 0.85rem 2.2rem; border-radius: 2px;
+    font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    transition: all 0.25s var(--ease);
+  }
+  .btn-primary:hover { background: var(--gold-lt); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(183,148,64,0.3); }
+  .btn-ghost {
+    background: transparent; color: var(--white);
+    padding: 0.85rem 2.2rem; border-radius: 2px;
+    border: 1px solid rgba(255,255,255,0.25);
+    font-size: 0.8rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase;
+    transition: all 0.25s var(--ease);
+  }
+  .btn-ghost:hover { border-color: var(--white); background: rgba(255,255,255,0.05); }
+
+  .hero-scroll {
+    position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    font-size: 0.65rem; letter-spacing: 0.15em; color: var(--gray); text-transform: uppercase;
+    animation: fadeIn 1s 1s var(--ease) both;
+  }
+  .scroll-line {
+    width: 1px; height: 40px; background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse { 0%,100%{opacity:0.4; transform:scaleY(1)} 50%{opacity:1; transform:scaleY(1.2)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  section { padding: 7rem 4rem; }
+  .section-label {
+    font-size: 0.68rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--gold); font-weight: 500; margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: var(--font-display); font-weight: 300;
+    font-size: clamp(2rem, 4vw, 3.2rem); color: var(--white);
+    line-height: 1.15; margin-bottom: 1.2rem;
+  }
+  .section-title em { color: var(--gold); font-style: italic; }
+  .section-body {
+    font-size: 1rem; color: var(--ice); line-height: 1.8; max-width: 600px;
+  }
+  .gold-bar {
+  position: relative;      
+}
+.bar-img {
+  position: absolute;
+  top: 0%;                
+  left: 60%;            
+  transform: translateY(-50%);
+  width: 150px;             
+  height: auto;
+}
+  #Ler { background: var(--offwhite); color: var(--navy); }
+  #Ler .section-title { color: var(--navy); }
+  #Ler .section-body { color: var(--steel); }
+  .Ler-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 5rem;
+    align-items: center; max-width: 1200px; margin: 0 auto;
+  }
+  .Ler-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem;
+  }
+  .stat { border-left: 2px solid var(--gold); padding-left: 1.2rem; }
+  .stat-number {
+    font-family: var(--font-display); font-size: 2.8rem;
+    font-weight: 300; color: var(--navy); line-height: 1;
+  }
+  .stat-label { font-size: 0.8rem; color: var(--steel); margin-top: 0.3rem; }
+  .Ler-visual {
+    background: var(--navy); border-radius: 4px;
+    padding: 3rem; position: relative; overflow: hidden;
+    min-height: 380px; display: flex; flex-direction: column; justify-content: flex-end;
+  }
+  .Ler-visual::before {
+    content: ''; position: absolute; top: -60px; right: -60px;
+    width: 280px; height: 280px; border-radius: 50%;
+    border: 1px solid rgba(183,148,64,0.25);
+  }
+  .Ler-visual::after {
+    content: ''; position: absolute; top: -20px; right: -20px;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: rgba(46,64,107,0.6);
+  }
+  .Ler-quote {
+    font-family: var(--font-display); font-size: 3.4rem;
+    color: var(--white); line-height: 1.5; font-style: italic;
+    position: relative; z-index: 1;
+  }
+  .Ler-quote span { color: var(--gold); 
+  }
+  .external {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+ }
+.external img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  border-radius: 4px;
+  background: var(--white);
+  padding: 0.4rem;
+  transition: transform 0.2s var(--ease);
+ }
+.external img:hover {
+  transform: translateY(-3px);
+ }
+  #Spi { background: var(--midnight); }
+  .Spi-header { max-width: 1200px; margin: 0 auto 4rem; }
+  .Spi-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1.5px; max-width: 1200px; margin: 0 auto;
+    background: rgba(183,148,64,0.1);
+    border: 1px solid rgba(183,148,64,0.1);
+  }
+  .service-card {
+    background: var(--navy); padding: 2.8rem 2.2rem;
+    position: relative; overflow: hidden;
+    transition: background 0.3s var(--ease);
+    display: block;
+    cursor: pointer;
+  }
+  .service-card:hover { background: var(--midnight); }
+  .service-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 3px; height: 0; background: var(--gold);
+    transition: height 0.4s var(--ease);
+  }
+  .service-card:hover::before { height: 100%; }
+  .service-num {
+    font-family: var(--font-display); font-size: 3.5rem;
+    color: rgba(183,148,64,0.15); font-weight: 600;
+    line-height: 1; margin-bottom: 1.5rem;
+    transition: color 0.3s;
+  }
+  .service-card:hover .service-num { color: rgba(183,148,64,0.35); }
+  .service-title {
+    font-size: 1.05rem; font-weight: 500; color: var(--white);
+    margin-bottom: 0.8rem; letter-spacing: 0.02em;
+  }
+  .service-desc { font-size: 0.9rem; color: var(--gray); line-height: 1.7; }
+  #Pru { background: var(--offwhite); }
+  #Pru .section-title { color: var(--navy); }
+  .Pru-container { max-width: 1200px; margin: 0 auto; }
+  .Pru-steps {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0; margin-top: 4rem; position: relative;
+  }
+  .Pru-steps::before {
+    content: ''; position: absolute; top: 28px; left: 10%;
+    width: 80%; height: 1px; background: linear-gradient(to right, transparent, var(--gold), transparent);
+  }
+  .Pru-step { padding: 0 1.5rem; text-align: center; }
+  .step-circle {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--navy); border: 2px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-family: var(--font-body); font-weight: 600;
+    font-size: 0.85rem; color: var(--gold); letter-spacing: 0.05em;
+  }
+  .step-title { font-size: 0.95rem; font-weight: 600; color: var(--navy); margin-bottom: 0.6rem; }
+  .step-desc { font-size: 0.83rem; color: var(--steel); line-height: 1.6; }
+  #testimonial {
+    background: var(--navy);
+    text-align: center; padding: 7rem 4rem;
+  }
+  .testimonial-content { max-width: 780px; margin: 0 auto; }
+  .quote-mark {
+    font-family: var(--font-display); font-size: 8rem; line-height: 0.5;
+    color: rgba(183,148,64,0.2); margin-bottom: 2rem; display: block;
+  }
+  .testimonial-text {
+    font-family: var(--font-display); font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 300; font-style: italic; color: var(--white);
+    line-height: 1.5; margin-bottom: 2rem;
+  }
+  .testimonial-author { font-size: 0.8rem; color: var(--gold); letter-spacing: 0.15em; text-transform: uppercase; }
+  #Hil { background: var(--midnight); }
+  .Hil-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6rem; max-width: 1200px; margin: 0 auto;
+    align-items: start;
+  }
+  .Hil-info { }
+  .Hil-item { margin-bottom: 1.8rem; }
+  .Hil-item-label { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.4rem; }
+  .Hil-item-value { font-size: 1rem; color: var(--ice); }
+  .Hil-form { display: flex; flex-direction: column; gap: 1.2rem; }
+  .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+  .form-label { font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray); }
+  .form-input, .form-textarea {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 2px; padding: 0.9rem 1rem;
+    color: var(--white); font-family: var(--font-body); font-size: 0.9rem;
+    transition: border-color 0.2s;
+    outline: none; resize: none;
+  }
+  .form-input:focus, .form-textarea:focus { border-color: var(--gold); }
+  .form-input::placeholder, .form-textarea::placeholder { color: rgba(255,255,255,0.2); }
+  .form-textarea { min-height: 130px; }
+  .btn-submit {
+    background: var(--gold); color: var(--navy); border: none;
+    padding: 0.9rem 2.2rem; font-family: var(--font-body);
+    font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; cursor: pointer; border-radius: 2px;
+    transition: all 0.25s var(--ease); align-self: flex-start;
+  }
+  .btn-submit:hover { background: var(--gold-lt); transform: translateY(-2px); }
+  footer {
+    background: var(--navy);
+    border-top: 1px solid rgba(183,148,64,0.2);
+    padding: 2.5rem 4rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-logo { display: flex; align-items: center; gap: 0.6rem; }
+  .footer-logo .monogram {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--gold); display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 600; font-size: 0.75rem; color: var(--navy);
+  }
+  .footer-logo .wordmark { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.18em; color: var(--white); }
+  .footer-copy { font-size: 0.72rem; color: var(--gray); }
+  .footer-links { display: flex; gap: 1.8rem; }
+  .footer-links a { font-size: 0.72rem; color: var(--gray); transition: color 0.2s; }
+  .footer-links a:hover { color: var(--gold); }
+  .reveal {
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  @media (max-width: 900px) {
+    nav { padding: 1rem 2rem; }
+    .nav-links { display: none; }
+    section { padding: 5rem 2rem; }
+    #hero { padding: 7rem 2rem 5rem; }
+    .Ler-grid, .Hil-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .Spi-grid { grid-template-columns: 1fr; }
+    .Pru-steps { grid-template-columns: 1fr 1fr; }
+    .Pru-steps::before { display: none; }
+    footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+<nav id="navbar">
+  <a href="#hero" class="nav-logo">
+    <div class="monogram">URI</div>
+    <span class="wordmark">Stromkreise rechnen mit <br> URI Heller</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#Ler">Lernen</a></li>
+    <li><a href="#Spi">Spielen</a></li>
+    <li><a href="#Pru">Prüfungsvorbereitung</a></li>
+    <li><a href="#Hil" class="nav-cta">Hilfe</a></li>
+  </ul>
+</nav>
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-orb orb-1"></div>
+  <div class="hero-orb orb-2"></div>
+  <div class="hero-orb orb-3"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">ISME · St. Gallen</p>
+    <h1 class="hero-title"><em>Stromkreise</em><br>rechnen mit URI Heller.</h1>
+    <p class="hero-sub"> Die Grundlagen von Serien- und Parallelschaltung bei Gleichstrom.</p>
+    <div class="hero-actions">
+      <a href="#Spi" class="btn-primary">Spielen</a>
+    </div>
+    <img class="png-transparent" src="./pic/u1n.png" alt="Beschreibung" style="width: 250px; margin-left: 600px;">
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+<section id="Ler">
+  <div class="Ler-grid">
+    <div class="reveal">
+      <p class="section-label">Grundlagen zu Stromkreisen</p>
+      <h2 class="section-title">xxxxxxxxxxxxxxx — <em>xxxxxxxxxxxxxxxxxxx.</em>xxxxxxxxxxx</h2>
+      <div class="gold-bar"></div>
+      <p class="section-body">xxxxxxxxxxxxxxxxxxxx xxxxxxxxxx xxxxxxxxxxx xxxxxxxxxxxxxxxx
+      </p>
+      <div class="Ler-stats">
+        <div class="stat reveal reveal-delay-1">
+          <div class="stat-number">Ampere = I</div>
+          <div class="stat-label">Stromstärke und Formelzeichen</div>
+        </div>
+        <div class="stat reveal reveal-delay-2">
+          <div class="stat-number">Volt = U</div>
+          <div class="stat-label">Stromspannung und Formelzeichen</div>
+        </div>
+        <div class="stat reveal reveal-delay-1">
+          <div class="stat-number">Ohm = R</div>
+          <div class="stat-label">Widerstand und Formelzeichen </div>
+        </div>
+      </div>
+    </div>
+       <div class="Ler-visual reveal reveal-delay-2">
+  <p class="Ler-quote">Mehr Informationen <span>Diese führen zu externen Internetseiten</span></p>
+  <img class="png-transparent" src="./pic/u18n.png" alt="Beschreibung" style="width: 200px;padding: 30px;">
+  <div class="external">
+      <a href="https://www.leifiphysik.de/elektrizitaetslehre" target="_blank" rel="noopener noreferrer">
+      <img src="./pic/leify.png" alt="Leifiphysik – Elektrizitätslehre"></a>
+      <a href="https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_all.html" target="_blank" rel="noopener noreferrer">
+      <img src="./pic/phet.png" alt="PhET Simulation Stromkreise"></a>
+      <a href="https://www.digikey.de/de/resources/conversion-calculators/conversion-calculator-parallel-and-series-resistor" target="_blank" rel="noopener noreferrer">
+      <img src="./pic/digi.png" alt="Digikey Widerstandsrechner"></a>
+  </div>
+</div>
+      </p>
+    </div>
+  </div>
+</section>
+<section id="Spi">
+  <div class="Spi-header reveal">
+    <p class="section-label">Spielen</p>
+    <h2 class="section-title">Kategorie <em>aussuchen</em></h2>
+      <img src="./pic/u7n.png" alt="Beschreibung" class="bar-img">
+    <div class="gold-bar"></div>
+  <div class="Spi-grid">
+    <a href="widerstandleicht.html" class="service-card reveal">
+      <div class="service-num">Widerstand</div>
+      <div class="service-title">Leicht</div>
+      <div class="service-desc">xxxxxxxxxxxx</div>
+    </a>
+    <a href="widerstandmittel.html" class="service-card reveal reveal-delay-1">
+      <div class="service-num">Widerstand</div>
+      <div class="service-title">Mittel</div>
+      <div class="service-desc">xxxxxxxxxxxxxxxx</div>
+    </a>
+    <a href="widerstandschwer.html" class="service-card reveal reveal-delay-2">
+      <div class="service-num">Widerstand</div>
+      <div class="service-title">Schwer</div>
+      <div class="service-desc">xxxxxxxxxxxxxxxx</div>
+    </a>
+    <a href="spannungleicht.html" class="service-card reveal">
+      <div class="service-num">Spannung</div>
+      <div class="service-title">Leicht</div>
+      <div class="service-desc">xxxxxxxxxxxxxxxx</div>
+    </a>
+    <a href="spannungmittel.html" class="service-card reveal reveal-delay-1">
+      <div class="service-num">Spannung</div>
+      <div class="service-title">Mittel</div>
+      <div class="service-desc">xxxxxxxxxx</div>
+    </a>
+    <a href="spannungschwer.html" class="service-card reveal reveal-delay-2">
+      <div class="service-num">Spannung</div>
+      <div class="service-title">Schwer</div>
+      <div class="service-desc">xxxxxxxxxxxxxx</div>
+    </a>
+    <a href="stromstaerkeleicht.html" class="service-card reveal reveal-delay-3">
+      <div class="service-num">Stromstärke</div>
+      <div class="service-title">Leicht</div>
+      <div class="service-desc">xxxxxxxxxxxxxx</div>
+    </a>
+    <a href="stromstaerkemittel.html" class="service-card reveal reveal-delay-3">
+      <div class="service-num">Stromstärke</div>
+      <div class="service-title">Mittel</div>
+      <div class="service-desc">xxxxxxxxxxxxxx</div>
+    </a>
+    <a href="stromstaerkeschwer.html" class="service-card reveal reveal-delay-3">
+      <div class="service-num">Stromstärke</div>
+      <div class="service-title">Schwer</div>
+      <div class="service-desc">xxxxxxxxxxxxxx</div>
+    </a>
+  </div>
+</section>
+<section id="Pru">
+  <div class="Pru-container">
+    <div class="reveal">
+      <p class="section-label">Prufungsvorbereitung</p>
+      <h2 class="section-title" style="color:var(--navy)">Empfohlenes <em style="color:var(--gold)">Vorgehen</em></h2>
+      <div class="gold-bar"></div>
+      <img src="./pic/u19n.png" alt="Beschreibung" class="bar-img">
+    </div>
+    <div class="Pru-steps">
+      <div class="Pru-step reveal">
+        <div class="step-circle">01</div>
+        <div class="step-title">Grundlagen verstehen</div>
+        <div class="step-desc">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.</div>
+      </div>
+      <div class="Pru-step reveal reveal-delay-1">
+        <div class="step-circle">02</div>
+        <div class="step-title">Spiel als übung</div>
+        <div class="step-desc">xxxxxxxxxxxxxxxxxxx.</div>
+      </div>
+      <div class="Pru-step reveal reveal-delay-2">
+        <div class="step-circle">03</div>
+        <div class="step-title">Probeprufungen lösen</div>
+        <div class="step-desc">xxxxxxxxxxxxxxxxxx.</div>
+      </div>
+      <div class="Pru-step reveal reveal-delay-3">
+        <div class="step-circle">04</div>
+        <div class="step-title">Prüfung</div>
+        <div class="step-desc">xxxxxxxxxxxxxxxxxxxxx.</div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="testimonial">
+  <div class="testimonial-content reveal">
+    <span class="quote-mark">!</span>
+    <p class="testimonial-text">Diese Internetseite ist noch in der Entwicklung.</p>
+      <img src="./pic/u8n.png" alt="Beschreibung" class="bar-img">
+    <p class="testimonial-author">URI Heller, St. Gallen</p>
+  </div>
+</section>
+<section id="Hil">
+  <div class="Hil-grid">
+    <div class="reveal">
+      <p class="section-label">Kontakt</p>
+      <h2 class="section-title">Senden Sie uns Ihr <em>Anliegen.</em></h2>
+      <div class="gold-bar"></div>
+      <p class="section-body" style="margin-bottom:2.5rem">Bitte senden Sie uns eine Nachricht wenn wir etwas für Sie tun können.</p>
+      <div class="Hil-item">
+        <div class="Hil-item-label">E-Mail</div>
+        <div class="Hil-item-value">RechnenmitURIHeller@gmail.com</div>
+      </div>
+      <div class="Hil-item">
+        <div class="Hil-item-label">Standort</div>
+        <div class="Hil-item-value">St.Gallen, Schweiz</div>
+      </div>
+    </div>
+    <div class="Hil-form reveal reveal-delay-1">
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-input" placeholder="Ihr vollständiger Name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Unternehmen</label>
+        <input type="text" class="form-input" placeholder="Ihre Firma">
+      </div>
+      <div class="form-group">
+        <label class="form-label">E-Mail</label>
+        <input type="email" class="form-input" placeholder="ihre@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nachricht</label>
+        <textarea class="form-textarea" placeholder="Beschreiben Sie kurz Ihr Anliegen oder die Herausforderung, bei der wir unterstützen sollen…"></textarea>
+      </div>
+      <button class="btn-submit">Nachricht senden</button>
+      <img src="./pic/u9n.png" alt="Beschreibung" class="bar-img" style="margin-left: -180%; margin-top: 80%;">
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="footer-logo">
+    <div class="monogram">URI</div>
+    <span class="wordmark">Stromkreise rechnen mit URI Heller</span>
+  </div>
+  <p class="footer-copy">© 2026 Chronwald · xxxxxxxxxx</p>
+  <div class="footer-links">
+    <a href="#">Impressum</a>
+    <a href="#">Datenschutz</a>
+    <a href="#">AGB</a>
+  </div>
+</footer>
+<script>
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
+  });
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
