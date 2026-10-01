@@ -1,4 +1,4 @@
-MVP der Internetseite von "Stromkreise rechnen mit URI Heller.
+MVP der Internetseite von "Stromkreise rechnen mit URI Heller".
 
 Die bekannten Fehler sind dabei von verschiedener Natur.
 
